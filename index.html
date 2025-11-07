@@ -238,299 +238,355 @@
   </main>
 
   <script>
-    const sheetUrlCamiones = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPW7ORSBCNqyu9AVjwWvCl_abfuud3m1COUTdEAUE4Rvoetf0E8m9jK9WX_OKzaA/pub?output=csv";
+const sheetUrlCamiones = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPW7ORSBCNqyu9AVjwWvCl_abfuud3m1COUTdEAUE4Rvoetf0E8m9jK9WX_OKzaA/pub?output=csv";
 
-    const generalData = [
-      { proceso: "Analizado", patio: "Patio Ofi", cantSacos: 73, kilos: 4043.01, qqs: 87.89 },
-      { proceso: "Enfarde", patio: "Patio Ofi", cantSacos: 695, kilos: 39911.6, qqs: 867.64 },
-      { proceso: "Enfarde", patio: "Patio Waswali", cantSacos: 164, kilos: 10708.18, qqs: 232.79 },
-      { proceso: "Envio", patio: "Patio Ofi", cantSacos: 978, kilos: 53284.61, qqs: 1158.36 },
-      { proceso: "No Asignado", patio: "Patio Ofi", cantSacos: 612, kilos: 41116.74, qqs: 893.84 },
-      { proceso: "No Asignado", patio: "Patio Waswali", cantSacos: 2689, kilos: 186040.18, qqs: 4044.34 },
-      { proceso: "Tendido", patio: "Patio Ofi", cantSacos: 3029, kilos: 187684.08, qqs: 4080.09 },
-      { proceso: "Tendido", patio: "Patio Waswali", cantSacos: 3448, kilos: 231791.46, qqs: 5038.94 }
-    ];
+const generalData = [
+  { proceso: "Analizado", patio: "Patio Ofi", cantSacos: 73, kilos: 4043.01, qqs: 87.89 },
+  { proceso: "Enfarde", patio: "Patio Ofi", cantSacos: 695, kilos: 39911.6, qqs: 867.64 },
+  { proceso: "Enfarde", patio: "Patio Waswali", cantSacos: 164, kilos: 10708.18, qqs: 232.79 },
+  { proceso: "Envio", patio: "Patio Ofi", cantSacos: 978, kilos: 53284.61, qqs: 1158.36 },
+  { proceso: "No Asignado", patio: "Patio Ofi", cantSacos: 612, kilos: 41116.74, qqs: 893.84 },
+  { proceso: "No Asignado", patio: "Patio Waswali", cantSacos: 2689, kilos: 186040.18, qqs: 4044.34 },
+  { proceso: "Tendido", patio: "Patio Ofi", cantSacos: 3029, kilos: 187684.08, qqs: 4080.09 },
+  { proceso: "Tendido", patio: "Patio Waswali", cantSacos: 3448, kilos: 231791.46, qqs: 5038.94 }
+];
 
-    const generalContainer = document.getElementById("general-cards");
-    const camionesContainer = document.getElementById("camiones-cards");
-    const camionesUpdateElement = document.getElementById("camiones-update");
-    const generalUpdateElement = document.getElementById("general-update");
+const generalContainer = document.getElementById("general-cards");
+const camionesContainer = document.getElementById("camiones-cards");
+const camionesUpdateElement = document.getElementById("camiones-update");
+const generalUpdateElement = document.getElementById("general-update");
 
-    let updateInterval;
+let updateInterval;
 
-    function formatTime(date) {
-      return date.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit'
-      });
+// Función para ordenar por el orden específico de procesos
+function sortByProcessOrder(data) {
+  const processOrder = ["No Asignado", "Tendido", "Enfarde", "Analizado", "Envio"];
+  
+  return data.sort((a, b) => {
+    const indexA = processOrder.indexOf(a.proceso);
+    const indexB = processOrder.indexOf(b.proceso);
+    
+    // Si ambos procesos están en la lista de orden, ordenar según la lista
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
     }
+    
+    // Si solo uno está en la lista, poner primero el que está en la lista
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+    
+    // Si ninguno está en la lista, ordenar alfabéticamente
+    return a.proceso.localeCompare(b.proceso);
+  });
+}
 
-    function updateTimestamp(element) {
-      const now = new Date();
-      element.textContent = `Última actualización: ${formatTime(now)}`;
-    }
+function formatTime(date) {
+  return date.toLocaleTimeString('es-ES', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    second: '2-digit'
+  });
+}
 
-    function scheduleNextUpdate() {
-      const now = new Date();
-      const minutes = now.getMinutes();
-      
-      // CAMBIADO A 5 MINUTOS
-      const minutesToNextUpdate = 5 - (minutes % 5);
-      const nextUpdate = new Date(now.getTime() + minutesToNextUpdate * 60000);
-      
-      console.log(`⏰ Próxima actualización programada a las: ${formatTime(nextUpdate)}`);
-      
-      setTimeout(() => {
-        performUpdate();
-        // CAMBIADO A 5 MINUTOS
-        updateInterval = setInterval(performUpdate, 5 * 60 * 1000);
-      }, minutesToNextUpdate * 60000);
-    }
+function updateTimestamp(element) {
+  const now = new Date();
+  element.textContent = `Última actualización: ${formatTime(now)}`;
+}
 
-    async function performUpdate() {
-      console.log('🔄 Actualizando datos...');
-      await updateCamionesData();
-      updateTimestamp(camionesUpdateElement);
-      updateTimestamp(generalUpdateElement);
-    }
+function scheduleNextUpdate() {
+  const now = new Date();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+  
+  console.log(`🕒 Hora actual: ${now.toLocaleTimeString()}`);
+  console.log(`📊 Minutos actuales: ${minutes}, Segundos: ${seconds}`);
+  
+  // Calcular cuántos minutos faltan para el próximo múltiplo de 5
+  const minutesToNextUpdate = 5 - (minutes % 5);
+  
+  // Calcular el tiempo exacto en milisegundos hasta la próxima actualización
+  const millisecondsToNextUpdate = minutesToNextUpdate === 5 
+    ? (5 * 60 * 1000) - (seconds * 1000) // Si es exacto, programar para 5 minutos después
+    : (minutesToNextUpdate * 60 * 1000) - (seconds * 1000); // Calcular tiempo exacto
+  
+  const nextUpdate = new Date(now.getTime() + millisecondsToNextUpdate);
+  
+  console.log(`⏰ Próxima actualización programada a las: ${formatTime(nextUpdate)}`);
+  console.log(`⏱️ Faltan ${Math.round(millisecondsToNextUpdate / 1000 / 60)} minutos y ${Math.round((millisecondsToNextUpdate / 1000) % 60)} segundos`);
+  
+  // Limpiar intervalo existente si hay uno
+  if (updateInterval) {
+    clearInterval(updateInterval);
+  }
+  
+  setTimeout(() => {
+    console.log('🚀 Ejecutando primera actualización programada...');
+    performUpdate();
+    // Configurar intervalo para cada 5 minutos
+    updateInterval = setInterval(() => {
+      console.log('🔄 Ejecutando actualización por intervalo...');
+      performUpdate();
+    }, 5 * 60 * 1000);
+  }, millisecondsToNextUpdate);
+}
 
-    async function updateCamionesData() {
-      const camionesData = await loadCSV(sheetUrlCamiones, camionesContainer);
-      if (camionesData.length > 0) {
-        renderCamionesData(camionesData);
-      }
-    }
+async function performUpdate() {
+  console.log('🔄 Iniciando actualización de datos...');
+  try {
+    await updateCamionesData();
+    // También actualizar los datos generales si es necesario
+    updateTimestamp(camionesUpdateElement);
+    updateTimestamp(generalUpdateElement);
+    console.log('✅ Actualización completada:', new Date().toLocaleTimeString());
+  } catch (error) {
+    console.error('❌ Error en la actualización:', error);
+  }
+}
 
-    function setupScrollEffects() {
-      const cardsContainers = document.querySelectorAll('.cards-container');
-      
-      cardsContainers.forEach(container => {
-        if (window.innerWidth <= 768) {
-          container.addEventListener('scroll', () => {
-            const cards = container.querySelectorAll('.card');
-            const containerRect = container.getBoundingClientRect();
-            const containerCenter = containerRect.left + containerRect.width / 2;
-            
-            cards.forEach(card => {
-              const cardRect = card.getBoundingClientRect();
-              const cardCenter = cardRect.left + cardRect.width / 2;
-              const distanceFromCenter = Math.abs(cardCenter - containerCenter);
-              
-              if (distanceFromCenter < cardRect.width / 2) {
-                card.classList.add('snap-center');
-              } else {
-                card.classList.remove('snap-center');
-              }
-            });
-          });
+async function updateCamionesData() {
+  console.log('📦 Actualizando datos de camiones...');
+  const camionesData = await loadCSV(sheetUrlCamiones, camionesContainer);
+  if (camionesData.length > 0) {
+    renderCamionesData(camionesData);
+  }
+}
 
-          setTimeout(() => {
-            container.dispatchEvent(new Event('scroll'));
-          }, 100);
-        }
-      });
-    }
-
-    async function loadCSV(url, container) {
-      try {
-        console.log("🔍 Cargando CSV desde:", url);
-        container.innerHTML = '<div class="loading">Cargando datos...</div>';
+function setupScrollEffects() {
+  const cardsContainers = document.querySelectorAll('.cards-container');
+  
+  cardsContainers.forEach(container => {
+    if (window.innerWidth <= 768) {
+      container.addEventListener('scroll', () => {
+        const cards = container.querySelectorAll('.card');
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
         
-        const timestamp = new Date().getTime();
-        const urlWithTimestamp = `${url}&t=${timestamp}`;
-        
-        const response = await fetch(urlWithTimestamp);
-        
-        if (!response.ok) {
-          throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
-        }
-        
-        const csvText = await response.text();
-        
-        if (!csvText.trim()) {
-          throw new Error("El archivo CSV está vacío");
-        }
-        
-        const data = parseCSV(csvText);
-        
-        if (!data.length) {
-          container.innerHTML = '<div class="error">No se encontraron datos en el CSV.</div>';
-          return [];
-        }
-        
-        return data;
-      } catch(err) {
-        console.error("❌ Error cargando CSV:", err);
-        container.innerHTML = `<div class="error">Error cargando datos: ${err.message}</div>`;
-        return [];
-      }
-    }
-
-    function parseCSV(text) {
-      try {
-        const lines = text.trim().split("\n").filter(l => l.trim() !== "");
-        
-        if (lines.length < 2) {
-          console.warn("CSV tiene menos de 2 líneas");
-          return [];
-        }
-
-        const separators = ['\t', ',', ';'];
-        let separator = ',';
-        let headers = [];
-        
-        for (const sep of separators) {
-          const testHeaders = lines[0].split(sep).map(h => h.trim());
-          const testData = lines[1].split(sep).map(v => v.trim());
+        cards.forEach(card => {
+          const cardRect = card.getBoundingClientRect();
+          const cardCenter = cardRect.left + cardRect.width / 2;
+          const distanceFromCenter = Math.abs(cardCenter - containerCenter);
           
-          if (testHeaders.length === testData.length && testHeaders.length > 1) {
-            separator = sep;
-            headers = testHeaders;
-            break;
+          if (distanceFromCenter < cardRect.width / 2) {
+            card.classList.add('snap-center');
+          } else {
+            card.classList.remove('snap-center');
           }
-        }
-
-        if (headers.length === 0) {
-          headers = lines[0].split(',').map(h => h.trim());
-        }
-
-        const data = [];
-        for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(separator).map(v => v.trim());
-          
-          if (values.length === headers.length) {
-            const obj = {};
-            headers.forEach((header, index) => {
-              obj[header] = values[index] || "";
-            });
-            data.push(obj);
-          }
-        }
-        
-        return data;
-      } catch (error) {
-        console.error("❌ Error parseando CSV:", error);
-        return [];
-      }
-    }
-
-    function renderCamionesData(data) {
-      camionesContainer.innerHTML = "";
-      
-      if (!data || !data.length) {
-        camionesContainer.innerHTML = '<div class="error">No hay datos de Camiones disponibles.</div>';
-        return;
-      }
-
-      data.forEach(row => {
-        const card = document.createElement("div");
-        card.classList.add("card");
-        
-        card.innerHTML = `
-          <p><span>Status:</span> ${row.Status || 'N/A'}</p>
-          <p><span>Camiones:</span> ${row.Camiones || 'N/A'}</p>
-          <p><span>Kilos:</span> ${parseFloat(row.Kilos || 0).toLocaleString()}</p>
-          <p><span>QQs:</span> ${parseFloat(row.QQs || 0).toLocaleString()}</p>
-          <p><span>Sacos:</span> ${parseFloat(row.Sacos || 0).toLocaleString()}</p>
-        `;
-        
-        camionesContainer.appendChild(card);
-      });
-
-      setupScrollEffects();
-    }
-
-    function renderGeneralData(data) {
-      generalContainer.innerHTML = "";
-      if (!data.length) {
-        generalContainer.innerHTML = '<div class="error">No hay datos generales.</div>';
-        return;
-      }
-
-      const dataByPatio = {};
-      data.forEach(item => {
-        if (!dataByPatio[item.patio]) {
-          dataByPatio[item.patio] = [];
-        }
-        dataByPatio[item.patio].push(item);
-      });
-
-      Object.keys(dataByPatio).forEach(patio => {
-        const patioSection = document.createElement("div");
-        patioSection.classList.add("patio-section");
-        
-        const patioTitle = document.createElement("div");
-        patioTitle.classList.add("patio-title");
-        patioTitle.textContent = `📍 ${patio}`;
-        
-        const patioCardsContainer = document.createElement("div");
-        patioCardsContainer.classList.add("cards-container");
-        
-        dataByPatio[patio].forEach(item => {
-          const card = document.createElement("div");
-          card.classList.add("card");
-          card.innerHTML = `
-            <p><span>Proceso:</span> ${item.proceso}</p>
-            <p><span>Patio:</span> ${item.patio}</p>
-            <p><span>Sacos:</span> ${item.cantSacos}</p>
-            <p><span>Kilos:</span> ${item.kilos.toLocaleString()}</p>
-            <p><span>QQs:</span> ${item.qqs.toLocaleString()}</p>
-          `;
-          patioCardsContainer.appendChild(card);
         });
-        
-        patioSection.appendChild(patioTitle);
-        patioSection.appendChild(patioCardsContainer);
-        generalContainer.appendChild(patioSection);
       });
 
-      setupScrollEffects();
+      setTimeout(() => {
+        container.dispatchEvent(new Event('scroll'));
+      }, 100);
+    }
+  });
+}
+
+async function loadCSV(url, container) {
+  try {
+    console.log("🔍 Cargando CSV desde:", url);
+    container.innerHTML = '<div class="loading">Cargando datos...</div>';
+    
+    const timestamp = new Date().getTime();
+    const urlWithTimestamp = `${url}&t=${timestamp}`;
+    
+    const response = await fetch(urlWithTimestamp);
+    
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+    }
+    
+    const csvText = await response.text();
+    
+    if (!csvText.trim()) {
+      throw new Error("El archivo CSV está vacío");
+    }
+    
+    const data = parseCSV(csvText);
+    
+    if (!data.length) {
+      container.innerHTML = '<div class="error">No se encontraron datos en el CSV.</div>';
+      return [];
+    }
+    
+    return data;
+  } catch(err) {
+    console.error("❌ Error cargando CSV:", err);
+    container.innerHTML = `<div class="error">Error cargando datos: ${err.message}</div>`;
+    return [];
+  }
+}
+
+function parseCSV(text) {
+  try {
+    const lines = text.trim().split("\n").filter(l => l.trim() !== "");
+    
+    if (lines.length < 2) {
+      console.warn("CSV tiene menos de 2 líneas");
+      return [];
     }
 
-    function setupFilters() {
-      const procesoSelect = document.getElementById("filter-proceso");
-      const patioSelect = document.getElementById("filter-patio");
-      const procesos = [...new Set(generalData.map(d => d.proceso))];
-      const patios = [...new Set(generalData.map(d => d.patio))];
-
-      procesos.forEach(p => procesoSelect.innerHTML += `<option value="${p}">${p}</option>`);
-      patios.forEach(p => patioSelect.innerHTML += `<option value="${p}">${p}</option>`);
-
-      const applyFilters = () => {
-        const fp = procesoSelect.value;
-        const ft = patioSelect.value;
-        const filtered = generalData.filter(d =>
-          (fp === "Todos" || d.proceso === fp) &&
-          (ft === "Todos" || d.patio === ft)
-        );
-        renderGeneralData(filtered);
-      };
-
-      procesoSelect.onchange = applyFilters;
-      patioSelect.onchange = applyFilters;
-    }
-
-    async function initializeApp() {
-      renderGeneralData(generalData);
-      setupFilters();
+    const separators = ['\t', ',', ';'];
+    let separator = ',';
+    let headers = [];
+    
+    for (const sep of separators) {
+      const testHeaders = lines[0].split(sep).map(h => h.trim());
+      const testData = lines[1].split(sep).map(v => v.trim());
       
-      await updateCamionesData();
-      updateTimestamp(camionesUpdateElement);
-      updateTimestamp(generalUpdateElement);
-      
-      scheduleNextUpdate();
-    }
-
-    initializeApp();
-
-    window.addEventListener('resize', setupScrollEffects);
-
-    window.addEventListener('beforeunload', () => {
-      if (updateInterval) {
-        clearInterval(updateInterval);
+      if (testHeaders.length === testData.length && testHeaders.length > 1) {
+        separator = sep;
+        headers = testHeaders;
+        break;
       }
+    }
+
+    if (headers.length === 0) {
+      headers = lines[0].split(',').map(h => h.trim());
+    }
+
+    const data = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(separator).map(v => v.trim());
+      
+      if (values.length === headers.length) {
+        const obj = {};
+        headers.forEach((header, index) => {
+          obj[header] = values[index] || "";
+        });
+        data.push(obj);
+      }
+    }
+    
+    return data;
+  } catch (error) {
+    console.error("❌ Error parseando CSV:", error);
+    return [];
+  }
+}
+
+function renderCamionesData(data) {
+  camionesContainer.innerHTML = "";
+  
+  if (!data || !data.length) {
+    camionesContainer.innerHTML = '<div class="error">No hay datos de Camiones disponibles.</div>';
+    return;
+  }
+
+  data.forEach(row => {
+    const card = document.createElement("div");
+    card.classList.add("card");
+    
+    card.innerHTML = `
+      <p><span>Status:</span> ${row.Status || 'N/A'}</p>
+      <p><span>Camiones:</span> ${row.Camiones || 'N/A'}</p>
+      <p><span>Kilos:</span> ${parseFloat(row.Kilos || 0).toLocaleString()}</p>
+      <p><span>QQs:</span> ${parseFloat(row.QQs || 0).toLocaleString()}</p>
+      <p><span>Sacos:</span> ${parseFloat(row.Sacos || 0).toLocaleString()}</p>
+    `;
+    
+    camionesContainer.appendChild(card);
+  });
+
+  setupScrollEffects();
+}
+
+function renderGeneralData(data) {
+  generalContainer.innerHTML = "";
+  if (!data.length) {
+    generalContainer.innerHTML = '<div class="error">No hay datos generales.</div>';
+    return;
+  }
+
+  // Ordenar los datos por el orden específico de procesos
+  const sortedData = sortByProcessOrder(data);
+
+  const dataByPatio = {};
+  sortedData.forEach(item => {
+    if (!dataByPatio[item.patio]) {
+      dataByPatio[item.patio] = [];
+    }
+    dataByPatio[item.patio].push(item);
+  });
+
+  Object.keys(dataByPatio).forEach(patio => {
+    const patioSection = document.createElement("div");
+    patioSection.classList.add("patio-section");
+    
+    const patioTitle = document.createElement("div");
+    patioTitle.classList.add("patio-title");
+    patioTitle.textContent = `📍 ${patio}`;
+    
+    const patioCardsContainer = document.createElement("div");
+    patioCardsContainer.classList.add("cards-container");
+    
+    dataByPatio[patio].forEach(item => {
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.innerHTML = `
+        <p><span>Proceso:</span> ${item.proceso}</p>
+        <p><span>Patio:</span> ${item.patio}</p>
+        <p><span>Sacos:</span> ${item.cantSacos}</p>
+        <p><span>Kilos:</span> ${item.kilos.toLocaleString()}</p>
+        <p><span>QQs:</span> ${item.qqs.toLocaleString()}</p>
+      `;
+      patioCardsContainer.appendChild(card);
     });
+    
+    patioSection.appendChild(patioTitle);
+    patioSection.appendChild(patioCardsContainer);
+    generalContainer.appendChild(patioSection);
+  });
+
+  setupScrollEffects();
+}
+
+function setupFilters() {
+  const procesoSelect = document.getElementById("filter-proceso");
+  const patioSelect = document.getElementById("filter-patio");
+  const procesos = [...new Set(generalData.map(d => d.proceso))];
+  const patios = [...new Set(generalData.map(d => d.patio))];
+
+  procesos.forEach(p => procesoSelect.innerHTML += `<option value="${p}">${p}</option>`);
+  patios.forEach(p => patioSelect.innerHTML += `<option value="${p}">${p}</option>`);
+
+  const applyFilters = () => {
+    const fp = procesoSelect.value;
+    const ft = patioSelect.value;
+    const filtered = generalData.filter(d =>
+      (fp === "Todos" || d.proceso === fp) &&
+      (ft === "Todos" || d.patio === ft)
+    );
+    renderGeneralData(filtered);
+  };
+
+  procesoSelect.onchange = applyFilters;
+  patioSelect.onchange = applyFilters;
+}
+
+async function initializeApp() {
+  console.log('🚀 Inicializando aplicación...');
+  renderGeneralData(generalData);
+  setupFilters();
+  
+  await updateCamionesData();
+  updateTimestamp(camionesUpdateElement);
+  updateTimestamp(generalUpdateElement);
+  
+  scheduleNextUpdate();
+  console.log('✅ Aplicación inicializada correctamente');
+}
+
+// Inicializar la aplicación
+initializeApp();
+
+window.addEventListener('resize', setupScrollEffects);
+
+window.addEventListener('beforeunload', () => {
+  if (updateInterval) {
+    clearInterval(updateInterval);
+    console.log('🧹 Intervalo de actualización limpiado');
+  }
+});
   </script>
 </body>
 </html>
