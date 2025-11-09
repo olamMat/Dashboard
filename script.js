@@ -1,3 +1,4 @@
+// === CONFIGURACIÓN GENERAL ===
 const sheetUrlCamiones = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPW7ORSBCNqyu9AVjwWvCl_abfuud3m1COUTdEAUE4Rvoetf0E8m9jK9WX_OKzaA/pub?output=csv";
 const sheetUrlGeneral  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTmkOu3MtRM8A5lWnbZiSsmml38oQfDH7lymtUq2Mxao2EIgGkkAso9O6JnI0Ys1g/pub?output=csv";
 const sheetUrlFechas   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTkjuaFRpult81iqXUoM_0s0aO_Hx2NXI-Vt3b7NjydPhDjWpNt1xl_SuHxZ_8y7Q/pub?output=csv";
@@ -11,8 +12,65 @@ let generalData = [];
 let fechaData = [];
 let updateInterval;
 
+// === CONFIGURACIÓN DE ALERTA ===
+const ALERT_DAYS = 3; // 🔴 Será rojo si tiene 3 días o más
+
+// === FUNCIÓN DE PARSEO DE FECHA ===
+function parseFechaTexto(fechaStrRaw) {
+  if (!fechaStrRaw) return null;
+  try {
+    const clean = fechaStrRaw.trim().replace(/\s+/g, " ");
+    const [fechaPart, horaPart = "00:00"] = clean.split(" ");
+    const [dStr, mesStr, yStr] = fechaPart.split("/");
+
+    const d = parseInt(dStr, 10);
+    let y = parseInt(yStr, 10);
+    if (isNaN(d) || isNaN(y)) return null;
+    if (y < 100) y += 2000;
+
+    // Normalizamos el texto del mes a minúsculas sin acentos
+    const mesNorm = mesStr
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .substring(0, 3)
+      .toLowerCase();
+
+    const meses = {
+      ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5,
+      jul: 6, ago: 7, sep: 8, oct: 9, nov: 10, dic: 11,
+      jan: 0, feb: 1, mar: 2, apr: 3, may_: 4, jun: 5,
+      jul_: 6, aug: 7, sep_: 8, oct_: 9, nov_: 10, dec: 11
+    };
+
+    const m = meses[mesNorm];
+    if (m === undefined) return null;
+
+    const [hhStr, mmStr = "0"] = horaPart.split(":");
+    const hh = parseInt(hhStr, 10) || 0;
+    const mm = parseInt(mmStr, 10) || 0;
+
+    const date = new Date(y, m, d, hh, mm, 0, 0);
+    if (isNaN(date.getTime())) return null;
+
+    return date;
+  } catch (err) {
+    console.warn("❌ Error parseando fecha:", fechaStrRaw, err);
+    return null;
+  }
+}
+
+// === DIFERENCIA DE DÍAS ===
+function diffDiasCalendario(fechaActual, fechaComparar) {
+  const a = new Date(fechaActual);
+  const b = new Date(fechaComparar);
+  a.setHours(0, 0, 0, 0);
+  b.setHours(0, 0, 0, 0);
+  return Math.floor((a - b) / (1000 * 60 * 60 * 24));
+}
+
+// === UTILIDADES ===
 function sortByProcessOrder(data) {
-  const order = ["No Asignado", "Tendido", "Enfarde", "Analizado", "Envio", "Almacén", "Tendido/Rechazado"];
+  const order = ["No Asignado", "Tendido", "Enfarde", "Analizado", "Envio", "Almacen", "Tendido/Rechazado"];
   return data.sort((a, b) => order.indexOf(a.Proceso) - order.indexOf(b.Proceso));
 }
 
@@ -30,13 +88,12 @@ function scheduleNextUpdate() {
   updateInterval = setInterval(performUpdate, 5 * 60 * 1000);
 }
 
+// === PROCESOS PRINCIPALES ===
 async function performUpdate() {
-  console.log("🔄 Actualizando datos...");
   try {
     await Promise.all([updateCamionesData(), updateGeneralData(), updateFechaData()]);
     updateTimestamp(camionesUpdateElement);
     updateTimestamp(generalUpdateElement);
-    console.log("✅ Actualización completada", new Date().toLocaleTimeString());
   } catch (error) {
     console.error("❌ Error en actualización:", error);
   }
@@ -58,18 +115,16 @@ async function updateFechaData() {
   fechaData = await loadCSV(sheetUrlFechas);
 }
 
+// === LECTURA CSV ===
 async function loadCSV(url, container) {
   try {
-    const timestamp = new Date().getTime();
-    const response = await fetch(`${url}&t=${timestamp}`);
-    if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
+    const response = await fetch(`${url}&t=${Date.now()}`);
     const text = await response.text();
     const data = parseCSV(text);
     if (!data.length && container)
       container.innerHTML = '<div class="error">No hay datos disponibles.</div>';
     return data;
   } catch (err) {
-    console.error("❌ Error cargando CSV:", err);
     if (container)
       container.innerHTML = `<div class="error">Error cargando datos: ${err.message}</div>`;
     return [];
@@ -87,6 +142,7 @@ function parseCSV(text) {
   });
 }
 
+// === RENDERIZADO ===
 function renderCamionesData(data) {
   camionesContainer.innerHTML = "";
   if (!data.length) {
@@ -104,7 +160,6 @@ function renderCamionesData(data) {
     `;
     camionesContainer.appendChild(card);
   });
-  setupScrollEffects();
 }
 
 function renderGeneralData(data) {
@@ -126,19 +181,26 @@ function renderGeneralData(data) {
     const patioSection = document.createElement("div");
     patioSection.classList.add("patio-section");
 
-    // Buscar la fecha en la tabla de fechas, compatible con más patios
-    const patioInfo = fechaData.find(f => (f.PatioRec || "").trim().toLowerCase() === patio.trim().toLowerCase());
-    let fechaTexto = "";
+    const patioInfo = fechaData.find(f =>
+      (f.PatioRec || "").trim().toLowerCase() === patio.trim().toLowerCase()
+    );
 
+    let fechaTexto = "";
     if (patioInfo && patioInfo.UltimaFechaRecibida) {
-      const fecha = new Date(patioInfo.UltimaFechaRecibida);
-      if (!isNaN(fecha.getTime())) {
+      const fecha = parseFechaTexto(patioInfo.UltimaFechaRecibida);
+      if (fecha instanceof Date && !isNaN(fecha)) {
         const hoy = new Date();
-        const diffDias = Math.floor((hoy - fecha) / (1000 * 60 * 60 * 24));
-        const color = diffDias > 3 ? "style='color:#d32f2f;font-weight:bold;animation:blink 1.5s infinite;'" : "";
-        const alerta = diffDias > 3 ? "⚠️" : "";
-        const fechaFormateada = fecha.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
-        fechaTexto = `— 🕓 Fecha más antigua sin asignar: <span ${color}>${fechaFormateada}</span> ${alerta}`;
+        const diff = diffDiasCalendario(hoy, fecha);
+        const isAlert = diff >= ALERT_DAYS;
+        const style = isAlert
+          ? "style='color:#d32f2f;font-weight:bold;animation:blink 1.5s infinite;'"
+          : "style='color:#2e7d32;font-weight:bold;'";
+        const icon = isAlert ? "⚠️" : "✅";
+        const fechaFormateada = fecha.toLocaleString("es-ES", {
+          day: "2-digit", month: "short", year: "numeric",
+          hour: "2-digit", minute: "2-digit"
+        }).replace(".", "");
+        fechaTexto = `— 🕓 Fecha más antigua sin asignar: <span ${style}>${fechaFormateada}</span> ${icon}`;
       }
     }
 
@@ -163,26 +225,9 @@ function renderGeneralData(data) {
     patioSection.appendChild(cardsContainer);
     generalContainer.appendChild(patioSection);
   });
-
-  setupScrollEffects();
 }
 
-function setupScrollEffects() {
-  document.querySelectorAll(".cards-container").forEach(container => {
-    if (window.innerWidth <= 768) {
-      container.addEventListener("scroll", () => {
-        const cards = container.querySelectorAll(".card");
-        const center = container.getBoundingClientRect().left + container.offsetWidth / 2;
-        cards.forEach(card => {
-          const rect = card.getBoundingClientRect();
-          const mid = rect.left + rect.width / 2;
-          card.classList.toggle("snap-center", Math.abs(mid - center) < rect.width / 2);
-        });
-      });
-    }
-  });
-}
-
+// === FILTROS ===
 function setupFilters() {
   const pSelect = document.getElementById("filter-proceso");
   const tSelect = document.getElementById("filter-patio");
@@ -209,6 +254,7 @@ function setupFilters() {
   tSelect.onchange = applyFilters;
 }
 
+// === INICIALIZACIÓN ===
 async function initializeApp() {
   await performUpdate();
   scheduleNextUpdate();
@@ -216,7 +262,3 @@ async function initializeApp() {
 }
 
 initializeApp();
-window.addEventListener("resize", setupScrollEffects);
-window.addEventListener("beforeunload", () => clearInterval(updateInterval));
-
-
