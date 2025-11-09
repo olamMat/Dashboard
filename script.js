@@ -135,8 +135,8 @@ function renderGeneralData(data) {
       if (!isNaN(fecha.getTime())) {
         const hoy = new Date();
         const diffDias = Math.floor((hoy - fecha) / (1000 * 60 * 60 * 24));
-        const color = diffDias > 5 ? "style='color:#d32f2f;font-weight:bold;animation:blink 1.5s infinite;'" : "";
-        const alerta = diffDias > 5 ? "⚠️" : "";
+        const color = diffDias > 3 ? "style='color:#d32f2f;font-weight:bold;animation:blink 1.5s infinite;'" : "";
+        const alerta = diffDias > 3 ? "⚠️" : "";
         const fechaFormateada = fecha.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
         fechaTexto = `— 🕓 Fecha más antigua sin asignar: <span ${color}>${fechaFormateada}</span> ${alerta}`;
       }
@@ -218,4 +218,5 @@ async function initializeApp() {
 initializeApp();
 window.addEventListener("resize", setupScrollEffects);
 window.addEventListener("beforeunload", () => clearInterval(updateInterval));
+
 
