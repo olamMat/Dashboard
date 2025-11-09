@@ -1,0 +1,202 @@
+ body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ffffff;
+      color: #333;
+      margin: 0;
+      padding-top: 60px;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-color: #860062;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      z-index: 1000;
+    }
+
+    h1 {
+      color: #ffffff;
+      font-size: 1.5rem;
+      margin: 0;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    #filters {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      padding: 0.5rem;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      justify-content: center;
+    }
+
+    #filters label {
+      color: #860062;
+      font-weight: bold;
+    }
+
+    #filters select {
+      padding: 0.3rem 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    #main-container {
+      padding: 1rem;
+    }
+
+    .table-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-weight: bold;
+      color: #000000; /* CAMBIADO A NEGRO */
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border-bottom: 2px solid #860062;
+    }
+
+    .patio-section {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .patio-title {
+      font-weight: bold;
+      color: #000000; /* CAMBIADO A NEGRO */
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #860062;
+    }
+
+    .cards-container {
+      display: flex;
+      flex-direction: row;
+      overflow-x: auto;
+      gap: 1.5rem;
+      padding: 1rem;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      min-height: 200px;
+    }
+
+    .card {
+      position: relative;
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 1.2rem;
+      min-width: 160px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      color: #333;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      overflow: hidden;
+      border: 3px solid transparent;
+      background: linear-gradient(white, white) padding-box,
+                  linear-gradient(135deg, #860062, #ff4d94, #860062) border-box;
+      transform-origin: center;
+    }
+
+    .card span {
+      font-weight: bold;
+      color: #000000; /* CAMBIADO A NEGRO */
+    }
+
+    @media (max-width: 768px) {
+      .cards-container {
+        scroll-snap-type: x mandatory;
+        padding: 1.5rem;
+      }
+
+      .card {
+        scroll-snap-align: center;
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+
+      .card.snap-center {
+        transform: scale(1.05);
+        opacity: 1;
+        box-shadow: 0 8px 25px rgba(134, 0, 98, 0.3);
+        z-index: 10;
+      }
+    }
+
+    .card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(134, 0, 98, 0.25);
+    }
+
+    .card p {
+      margin: 0.4rem 0;
+      font-size: 0.9rem;
+    }
+
+    .loading, .error {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100px;
+      font-style: italic;
+    }
+
+    .error {
+      color: #d32f2f;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .loading {
+      color: #860062;
+    }
+
+    .last-update {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .cards-container::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .cards-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .cards-container::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #860062, #ff4d94);
+      border-radius: 10px;
+    }
+
+    .cards-container::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #6a004d, #e04585);
+    }
+    #Proceso{
+        font-size: 20px;
+        align-items: center;
+        font-weight: bold;
+        background-color: #860062;
+        border-radius: 25;
+        color: white;
+        align-content: center;
+        padding: 5px;
+    }
