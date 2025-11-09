@@ -70,7 +70,7 @@ function diffDiasCalendario(fechaActual, fechaComparar) {
 
 // === UTILIDADES ===
 function sortByProcessOrder(data) {
-  const order = ["No Asignado", "Tendido", "Enfarde", "Analizado", "Envio", "Almacen", "Tendido/Rechazado"];
+  const order = ["No Asignado", "Tendido", "Enfarde", "Analizado", "Envio", "Almacén", "Tendido/Rechazado"];
   return data.sort((a, b) => order.indexOf(a.Proceso) - order.indexOf(b.Proceso));
 }
 
@@ -262,3 +262,4 @@ async function initializeApp() {
 }
 
 initializeApp();
+
