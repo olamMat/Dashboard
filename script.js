@@ -214,7 +214,7 @@ function renderGeneralData(data) {
       card.classList.add("card");
       card.innerHTML = `
         <div class="proceso-label">${item.Proceso}</div>
-        <p><span>CantSacos:</span> ${item.CantSacos}</p>
+        <p><span>Sacos:</span> ${item.Sacos}</p>
         <p><span>Kilos:</span> ${parseFloat(item.Kilos || 0).toLocaleString()}</p>
         <p><span>QQs:</span> ${parseFloat(item.QQs || 0).toLocaleString()}</p>
         <p><span>Lotes:</span> ${parseFloat(item.Lotes || 0).toLocaleString()}</p>
@@ -262,5 +262,6 @@ async function initializeApp() {
 }
 
 initializeApp();
+
 
 
