@@ -262,6 +262,22 @@ async function initializeApp() {
   console.log("✅ Dashboard inicializado");
 }
 
+const hamburger = document.getElementById("hamburger");
+const menuPanel = document.getElementById("menu-panel");
+
+hamburger.addEventListener("click", () => {
+  const visible = menuPanel.style.display === "block";
+  menuPanel.style.display = visible ? "none" : "block";
+});
+
+// Cerrar menú si se hace clic afuera
+document.addEventListener("click", (e) => {
+  if (!document.getElementById("menu-container").contains(e.target)) {
+    menuPanel.style.display = "none";
+  }
+});
+
+
 initializeApp();
 
 

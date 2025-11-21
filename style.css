@@ -16,7 +16,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 0 20px;
+      padding: 0 5px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.25);
       z-index: 1000;
     }
@@ -228,5 +228,56 @@
   gap: 0.5rem;
 }
 
+/* === MENÚ HAMBURGUESA CORREGIDO === */
 
+#menu-container {
+  position: absolute;
+  right: 15px; /* deja espacio para evitar el corte */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2000;
+}
 
+#hamburger {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+#hamburger:hover {
+  background-color: rgba(255,255,255,0.15);
+}
+
+/* Panel desplegable */
+#menu-panel {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background: white;
+  border-radius: 12px;
+  padding: 10px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  width: 190px;
+  display: none;
+  z-index: 3000;
+}
+
+.menu-option {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #860062;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: 0.2s;
+}
+
+.menu-option:hover {
+  background-color: #ffd6ef;
+  color: #550042;
+}
