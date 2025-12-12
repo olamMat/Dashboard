@@ -3,76 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
   <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-  <header >
-    <h1>Dashboard</h1>
 
-    <div id="menu-container">
-  <div id="hamburger">
-    ☰
+<header>
+  <h1>Dashboard</h1>
+
+  <!-- Menú hamburguesa -->
+  <div id="menu-container">
+    <div id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div id="menu-panel">
+      <a href="https://drive.google.com/drive/folders/103qxST75KLI1VhUVxwUnebZSQY_HzNXy?usp=sharing"><i class="fa-solid fa-database"></i> Secado Natural</a>
+      <a href="https://drive.google.com/drive/folders/1-97d3bAzF4NCS6tCsu39oP2jgRmsYEoT?usp=sharing"><i class="fa-solid fa-mug-hot"></i> Catación</a>
+      <a href="https://drive.google.com/drive/folders/1xnEqmtlqhFD4eBk8FiqV5VPo1A2Yryp-?usp=sharing"><i class="fa-solid fa-warehouse"></i> Almacén</a>
+    </div>
   </div>
+</header>
 
-  <div id="menu-panel">
-<a href="https://drive.google.com/drive/folders/103qxST75KLI1VhUVxwUnebZSQY_HzNXy?usp=sharing"
-       class="menu-option" download>
-      📄 Secado Natural
-    </a>
-    
-    <a href="https://drive.google.com/drive/folders/1-97d3bAzF4NCS6tCsu39oP2jgRmsYEoT?usp=sharing"
-       class="menu-option" download>
-      📄 Catación
-    </a>
+<div id="menu-mask"></div>
 
-    <a href="https://drive.google.com/drive/folders/1xnEqmtlqhFD4eBk8FiqV5VPo1A2Yryp-?usp=sharing"
-      1dzsRLn8CxxdhH_UMkxgqURcz3un_cKLH
-       class="menu-option" download>
-      📄 Almacén
-    </a>
-  </div>
-</div>
-  </header>
+<main id="main-container">
+  <section class="table-section">
+    <div class="section-title">🚛 Datos de Camiones (Báscula)</div>
+    <div id="camiones-cards" class="cards-container">
+      <div class="loading">Cargando datos de camiones...</div>
+    </div>
+    <div id="camiones-update" class="last-update"></div>
+  </section>
 
-  <main id="main-container">
-    <section class="table-section">
-      <div class="section-title">🚛 Datos de Camiones (Báscula)</div>
-      <div id="camiones-cards" class="cards-container">
-        <div class="loading">Cargando datos de camiones...</div>
-      </div>
-      <div id="camiones-update" class="last-update"></div>
+  <section class="table-section">
+    <div class="section-title">📊 Datos de Secado Natural</div>
+    <section id="filters">
+      <label>Proceso:
+        <select id="filter-proceso">
+          <option value="Todos">Todos</option>
+        </select>
+      </label>
+      <label>Patio:
+        <select id="filter-patio">
+          <option value="Todos">Todos</option>
+        </select>
+      </label>
     </section>
 
-    <section class="table-section">
-      <div class="section-title">📊 Datos de Secado Natural</div>
-      <section id="filters">
-        <label>Proceso:
-          <select id="filter-proceso">
-            <option value="Todos">Todos</option>
-          </select>
-        </label>
-        <label>Patio:
-          <select id="filter-patio">
-            <option value="Todos">Todos</option>
-          </select>
-        </label>
-      </section>
-      <div id="general-container">
-        <div id="general-cards">
-          <div class="loading">Cargando datos...</div>
-        </div>
+    <div id="general-container">
+      <div id="general-cards">
+        <div class="loading">Cargando datos...</div>
       </div>
-      <div id="general-update" class="last-update"></div>
-    </section>
-  </main>
+    </div>
+    <div id="general-update" class="last-update"></div>
+  </section>
+</main>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
-

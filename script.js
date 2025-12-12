@@ -144,24 +144,107 @@ function parseCSV(text) {
 
 // === RENDERIZADO ===
 function renderCamionesData(data) {
-  camionesContainer.innerHTML = "";
-  if (!data.length) {
-    camionesContainer.innerHTML = '<div class="error">No hay datos de camiones disponibles.</div>';
-    return;
-  }
-  data.forEach(r => {
-    const card = document.createElement("div");
-    card.classList.add("card");
-    card.innerHTML = `
-      <p><span>Status:</span> ${r.Status || "N/A"}</p>
-      <p><span>Camiones:</span> ${r.Camiones || "N/A"}</p>
-      <p><span>Kilos:</span> ${parseFloat(r.Kilos || 0).toLocaleString()}</p>
-      <p><span>QQs:</span> ${parseFloat(r.QQs || 0).toLocaleString()}</p>
-      <p><span>Sacos:</span> ${r.Sacos || "N/A"}</p>
+    camionesContainer.innerHTML = "";
+    if (!data.length) {
+        camionesContainer.innerHTML = '<div class="error">No hay datos disponibles.</div>';
+        return;
+    }
+
+    // Agrupación principal
+    const grupos = { Arabigo: [], Robusta: [] };
+    data.forEach(x => {
+        const g = (x.GrupoProcedencia || "").trim();
+        if (grupos[g]) grupos[g].push(x);
+    });
+
+    // Función que resume
+    function resumir(items) {
+        let cam = 0, kg = 0, qq = 0, sac = 0;
+        items.forEach(r => {
+            cam += Number(r.Camiones || 0);
+            kg += Number(r.Kilos || 0);
+            qq += Number(r.QQs || 0);
+            sac += Number(r.Sacos || 0);
+        });
+        return { cam, kg, qq, sac };
+    }
+
+    const totalGeneral = resumir(data);
+
+    // === 1) BARRA DE TOTAL GENERAL ===
+    const barra = document.createElement("div");
+    barra.classList.add("general-info-bar");
+
+    barra.innerHTML = `
+        <div class="general-info-title">📦 Total General</div>
+        <div class="general-info-data">
+            <div class="general-pill">Camiones: ${totalGeneral.cam}</div>
+            <div class="general-pill">Kilos: ${totalGeneral.kg.toLocaleString()}</div>
+            <div class="general-pill">QQs: ${totalGeneral.qq.toLocaleString()}</div>
+            <div class="general-pill">Sacos: ${totalGeneral.sac}</div>
+        </div>
     `;
-    camionesContainer.appendChild(card);
-  });
+    camionesContainer.appendChild(barra);
+
+    // === Agrupar por status tipo Patio ===
+    function agruparPorStatus(items) {
+        const m = {};
+        items.forEach(x => {
+            const st = x.Status || "Sin Status";
+            if (!m[st]) m[st] = [];
+            m[st].push(x);
+        });
+        return m;
+    }
+
+    // === 2) CREAR SECCIÓN IGUAL A PATIO ===
+    function crearSeccion(nombre, items, color) {
+        const section = document.createElement("div");
+        section.classList.add("patio-section");
+
+        section.innerHTML = `
+            <div class="patio-title" style="color:${color}">
+                ${nombre}
+            </div>
+        `;
+
+        const cards = document.createElement("div");
+        cards.classList.add("cards-container");
+
+        const agrupado = agruparPorStatus(items);
+
+        Object.keys(agrupado).forEach(st => {
+            let cam = 0, kg = 0, qq = 0, sac = 0;
+
+            agrupado[st].forEach(r => {
+                cam += Number(r.Camiones || 0);
+                kg += Number(r.Kilos || 0);
+                qq += Number(r.QQs || 0);
+                sac += Number(r.Sacos || 0);
+            });
+
+            const card = document.createElement("div");
+            card.classList.add("card");
+
+            card.innerHTML = `
+                <div class="proceso-label">${st}</div>
+                <p><span>Camiones:</span> ${cam}</p>
+                <p><span>Kilos:</span> ${kg.toLocaleString()}</p>
+                <p><span>QQs:</span> ${qq.toLocaleString()}</p>
+                <p><span>Sacos:</span> ${sac}</p>
+            `;
+            cards.appendChild(card);
+        });
+
+        section.appendChild(cards);
+        camionesContainer.appendChild(section);
+    }
+
+    // === 3) Secciones tipo patio ===
+    crearSeccion("Arabigo", grupos.Arabigo, "#005ace");
+    crearSeccion("Robusta", grupos.Robusta, "#1f8f2e");
 }
+
 
 function renderGeneralData(data) {
   generalContainer.innerHTML = "";
@@ -276,10 +359,23 @@ document.addEventListener("click", (e) => {
     menuPanel.style.display = "none";
   }
 });
+// MENÚ HAMBURGUESA
+const burger = document.getElementById("hamburger");
+const panel  = document.getElementById("menu-panel");
+const mask   = document.getElementById("menu-mask");
 
+burger.addEventListener("click", () => {
+    burger.classList.toggle("open");
+    if (burger.classList.contains("open")) {
+        panel.style.display = "block";
+    } else {
+        panel.style.display = "none";
+        mask.classList.remove("show");
+    }
+});
+mask.addEventListener("click", () => {
+    burger.classList.remove("open");
+    panel.style.display = "none";
+});
 
 initializeApp();
-
-
-
-

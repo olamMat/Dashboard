@@ -1,283 +1,420 @@
- body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ffffff;
-      color: #333;
-      margin: 0;
-      padding-top: 60px;
-    }
-
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background-color: #860062;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 0 5px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-      z-index: 1000;
-    }
-
-    h1 {
-      color: #ffffff;
-      font-size: 1.5rem;
-      margin: 0;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    }
-
-    #filters {
-      display: flex;
-      gap: 0.5rem;
-      margin: 1rem 0;
-      padding: 0.5rem;
-      background-color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      justify-content: center;
-    }
-
-    #filters label {
-      color: #860062;
-      font-weight: bold;
-    }
-
-    #filters select {
-      padding: 0.3rem 0.5rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-
-    #main-container {
-      padding: 1rem;
-    }
-
-    .table-section {
-      margin-bottom: 2rem;
-    }
-
-    .section-title {
-      font-weight: bold;
-      color: #000000; /* CAMBIADO A NEGRO */
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-      padding: 0.5rem;
-      border-bottom: 2px solid #860062;
-    }
-
-    .patio-section {
-      margin-bottom: 2rem;
-      padding: 1rem;
-      background: #f8f9fa;
-      border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .patio-title {
-      font-weight: bold;
-      color: #000000; /* CAMBIADO A NEGRO */
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid #860062;
-    }
-
-    .cards-container {
-      display: flex;
-      flex-direction: row;
-      overflow-x: auto;
-      gap: 1.5rem;
-      padding: 1rem;
-      -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
-      min-height: 200px;
-    }
-
-    .card {
-      position: relative;
-      background: rgba(255,255,255,0.95);
-      border-radius: 20px;
-      padding: 1.2rem;
-      min-width: 160px;
-      flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      color: #333;
-      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      overflow: hidden;
-      border: 3px solid transparent;
-      background: linear-gradient(white, white) padding-box,
-                  linear-gradient(135deg, #860062, #ff4d94, #860062) border-box;
-      transform-origin: center;
-    }
-
-    .card span {
-      font-weight: bold;
-      color: #000000; /* CAMBIADO A NEGRO */
-    }
-
-    @media (max-width: 768px) {
-      .cards-container {
-        scroll-snap-type: x mandatory;
-        padding: 1.5rem;
-      }
-
-      .card {
-        scroll-snap-align: center;
-        transform: scale(0.95);
-        opacity: 0.8;
-      }
-
-      .card.snap-center {
-        transform: scale(1.05);
-        opacity: 1;
-        box-shadow: 0 8px 25px rgba(134, 0, 98, 0.3);
-        z-index: 10;
-      }
-    }
-
-    .card:hover {
-      transform: translateY(-6px) scale(1.02);
-      box-shadow: 0 12px 30px rgba(134, 0, 98, 0.25);
-    }
-
-    .card p {
-      margin: 0.4rem 0;
-      font-size: 0.9rem;
-    }
-
-    .loading, .error {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100px;
-      font-style: italic;
-    }
-
-    .error {
-      color: #d32f2f;
-      text-align: center;
-      padding: 1rem;
-    }
-
-    .loading {
-      color: #860062;
-    }
-
-    .last-update {
-      text-align: center;
-      font-size: 0.8rem;
-      color: #666;
-      margin-top: 0.5rem;
-      font-style: italic;
-    }
-
-    .cards-container::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    .cards-container::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 10px;
-    }
-
-    .cards-container::-webkit-scrollbar-thumb {
-      background: linear-gradient(135deg, #860062, #ff4d94);
-      border-radius: 10px;
-    }
-
-    .cards-container::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(135deg, #6a004d, #e04585);
-    }
-    #Proceso{
-        font-size: 20px;
-        align-items: center;
-        font-weight: bold;
-        background-color: #860062;
-        border-radius: 25;
-        color: white;
-        align-content: center;
-        padding: 5px;
-    }
-
-@keyframes blink {
-  50% { opacity: 0.5; }
+/* ===========================
+   BASE / LAYOUT GENERAL
+=========================== */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #ffffff;
+  color: #333;
+  margin: 0;
+  padding-top: 60px;
 }
 
-.proceso-label {
-  text-align: center;
+/* HEADER */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #860062;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    z-index: 1000;
+}
+h1 {
+    color: white;
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+#main-container { padding: 1rem; }
+.section-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: black;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid #860062;
+}
+
+/* Bloque estándar de tabla/sección (envoltorio) */
+.table-section {
+  margin-bottom: 2rem;
+}
+
+/* ===========================
+   ORDEN VERTICAL EN BÁSCULA
+   (IMPORTANTE)
+=========================== */
+/* Contenedor de "Datos de Camiones (Báscula)" */
+#camiones-cards {
+  display: flex;
+  flex-direction: column;   /* ← apila en filas separadas */
+  gap: 1.25rem;             /* espacio entre filas */
+}
+
+/* ===========================
+   BARRA SUPERIOR: TOTAL GENERAL
+=========================== */
+.general-info-bar {
+  display: block;                 /* asegura fila completa */
+  width: 100%;
+ background: linear-gradient(90deg, #9b1b5a, #c34787);
+
+  color: #fff;
+  padding: 1.2rem 1.4rem;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.general-info-title {
+  font-size: 1.4rem;
   font-weight: bold;
-  font-size: 1.3rem;
-  color: #860062;
-  margin-bottom: 0.7rem;
-  background: linear-gradient(90deg, #ffe6f5, #ffffff);
-  border-radius: 10px;
-  padding: 0.3rem 0;
-  letter-spacing: 0.6px;
-  box-shadow: inset 0 0 5px rgba(134, 0, 98, 0.2);
+  margin-bottom: .6rem;
+  display: flex;
+  justify-content: center;  /* centrado */
+  align-items: center;
+  gap: 10px;
 }
-
-.patio-title {
+.general-info-data {
+  display: flex; flex-wrap: wrap;
+  gap: .6rem;
+}
+.general-pill {
+  background: rgba(255,255,255,.18);
+  padding: 7px 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: .95rem;
+}
+/* === BARRA SUPERIOR: TOTAL GENERAL === */
+.general-info-bar {
+  display: block;
+  width: 100%;
+  background: linear-gradient(90deg, #9b1b5a, #c34787); /* ← color más suave */
+  color: #fff;
+  padding: 1.4rem;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  text-align: center; /* centrado */
+}
+.general-info-data {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: bold;
+  gap: .7rem;
+  justify-content: center; /* centrado */
+}
+
+/* ===========================
+   BLOQUES TIPO "PATIO"
+   (Arabigo / Robusta)
+=========================== */
+.patio-section {
+  display: block;            /* fila propia */
+  width: 100%;
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+
+/* Título de la sección (línea como patio) */
+.patio-title {
+  font-weight: 800;
   font-size: 1.1rem;
-  gap: 0.5rem;
+  margin: .25rem 0 1rem 0;
+  padding-bottom: .35rem;
+  border-bottom: 2px solid #860062;
+  display: flex; align-items: center; gap: .5rem;
+  color: #000; /* el color primario lo puedes sobreescribir inline */
 }
 
-/* === MENÚ HAMBURGUESA CORREGIDO === */
-
-#menu-container {
-  position: absolute;
-  right: 15px; /* deja espacio para evitar el corte */
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2000;
+/* Contenedor de tarjetas con scroll horizontal */
+.cards-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding: .75rem .25rem .25rem .25rem;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  min-height: 180px; /* asegura altura mínima */
 }
 
-#hamburger {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: white;
-  cursor: pointer;
-  user-select: none;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: 0.2s;
+/* Scrollbar */
+.cards-container::-webkit-scrollbar { height: 8px; }
+.cards-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.cards-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #860062, #ff4d94);
+  border-radius: 10px;
+}
+.cards-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #6a004d, #e04585);
 }
 
-#hamburger:hover {
-  background-color: rgba(255,255,255,0.15);
+/* Tarjeta tipo “patio” (status) */
+.card {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.1rem 1.2rem;
+  min-width: 220px;       /* ancho mínimo para carrusel agradable */
+  flex-shrink: 0;         /* evita colapso en scroll */
+  color: #333;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  border: 3px solid transparent;
+  background:
+    linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, #860062, #ff4d94, #860062) border-box;
+  transition: transform .2s ease, box-shadow .2s ease;
 }
-
-/* Panel desplegable */
-#menu-panel {
-  position: absolute;
-  right: 0;
-  top: 40px;
-  background: white;
-  border-radius: 12px;
-  padding: 10px 0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  width: 190px;
-  display: none;
-  z-index: 3000;
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(134,0,98,0.22);
 }
+.card p {
+  margin: .35rem 0;
+  font-size: .95rem;
+}
+.card span { font-weight: 700; color: #000; }
 
-.menu-option {
-  display: block;
-  padding: 10px 15px;
-  text-decoration: none;
+/* Etiqueta de Status en la tarjeta */
+.proceso-label {
+  display: inline-block;
+  font-weight: 800;
+  font-size: 1.05rem;
   color: #860062;
-  font-weight: bold;
-  font-size: 0.9rem;
-  transition: 0.2s;
+  margin-bottom: .55rem;
+  background: linear-gradient(90deg, #ffe6f5, #ffffff);
+  border-radius: 12px;
+  padding: .35rem .8rem;
+  letter-spacing: .3px;
+  box-shadow: inset 0 0 5px rgba(134,0,98,0.15);
 }
 
-.menu-option:hover {
-  background-color: #ffd6ef;
-  color: #550042;
+/* ===========================
+   FILTROS (si los usas)
+=========================== */
+#filters {
+  display: flex; gap: .5rem; justify-content: center;
+  margin: 1rem 0; padding: .5rem;
+  background: #fff; border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
+#filters label { color: #860062; font-weight: 700; }
+#filters select {
+  padding: .3rem .5rem;
+  border-radius: 8px; border: 1px solid #ccc;
+}
+
+/* ===========================
+   ESTADOS / MENSAJES
+=========================== */
+.loading, .error {
+  display: flex; justify-content: center; align-items: center;
+  min-height: 100px; font-style: italic;
+}
+.loading { color: #860062; }
+.error { color: #d32f2f; text-align: center; padding: 1rem; }
+
+.last-update {
+  text-align: center; font-size: .8rem; color: #666;
+  margin-top: .5rem; font-style: italic;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 768px) {
+  .card { min-width: 200px; }
+  .general-info-title { font-size: 1.25rem; }
+}
+/* === FIX: contexto para posicionar el botón dentro del header === */
+header {
+  position: fixed; /* ya lo tienes */
+  /* añadimos el contexto explícito para absolutos internos */
+  /* (aunque sea fixed, algunos navegadores agradecen relative aquí) */
+  position: fixed;
+}
+
+/* === BOTÓN HAMBURGUESA (visual + posición) === */
+/* ===========================
+   MENÚ HAMBURGUESA (REPARADO)
+=========================== */
+
+/* contenedor */
+
+/* MENÚ HAMBURGUESA */
+#menu-container {
+    position: absolute;
+    right: 20px;
+    top: 14px;
+    z-index: 3000;
+}
+#hamburger {
+    width: 34px;
+    height: 26px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+#hamburger span {
+    width: 100%;
+    height: 4px;
+    background: white;
+    border-radius: 3px;
+    transition: 0.35s ease;
+}
+#hamburger.open span:nth-child(1) {
+    transform: translateY(11px) rotate(45deg);
+}
+#hamburger.open span:nth-child(2) {
+    opacity: 0;
+}
+#hamburger.open span:nth-child(3) {
+    transform: translateY(-11px) rotate(-45deg);
+}
+#menu-panel {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 40px;
+    width: 190px;
+    background: #ffffffee;
+    backdrop-filter: blur(10px);
+    padding: 14px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+}
+#menu-panel a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 6px;
+    font-weight: bold;
+    color: #860062;
+    text-decoration: none;
+}
+#menu-panel a:hover {
+    background: #ffe3f5;
+}
+#menu-mask {
+    position: fixed;
+    inset: 0;
+    background: transparent; /* ← antes era oscuro */
+    backdrop-filter: none;    /* ← elimina el blur */
+    opacity: 0;               /* ← siempre invisible */
+    pointer-events: none;     /* ← no bloquea clics */
+    z-index: 2500;
+}
+
+#menu-mask.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+
+/* ======================= */
+/*     PANEL DEL MENÚ      */
+/* ======================= */
+
+#menu-panel {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 40px;
+    width: 190px;
+    background: #ffffffee;
+    backdrop-filter: blur(10px);
+    padding: 14px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    animation: fadeIn 0.25s ease;
+}
+
+#menu-panel a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 6px;
+    text-decoration: none;
+    color: #860062;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+#menu-panel a:hover {
+    background: #ffe3f5;
+}
+
+/* ======================= */
+/*      MÁSCARA FONDO      */
+/* ======================= */
+
+#menu-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.25s ease-in-out;
+    z-index: 2500;
+}
+
+#menu-mask.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Animación entrada */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Estado “abierto” opcional (si luego agregas la clase .open desde JS) */
+.menu-toggle.open .bar:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+.menu-toggle.open .bar:nth-child(2) { opacity: 0; }
+.menu-toggle.open .bar:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+
+/* === CAJÓN LATERAL (si lo usas) === */
+.nav-drawer {
+  position: fixed;
+  top: 60px;               /* debajo del header */
+  right: 0;
+  width: 260px;
+  height: calc(100vh - 60px);
+  background: #ffffff;
+  box-shadow: -10px 0 24px rgba(0,0,0,.18);
+  transform: translateX(100%);
+  transition: transform .25s ease;
+  z-index: 1500;
+}
+.nav-drawer.open { transform: translateX(0); }
+
+/* Fondo enmascarado opcional */
+.nav-mask {
+  position: fixed;
+  inset: 60px 0 0 0;       /* debajo del header */
+  background: rgba(0,0,0,.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+  z-index: 1400;
+}
+.nav-mask.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Aseguramos que la barra de “Total General” quede centrada (ya lo tenías pero refuerzo) */
+.general-info-bar { text-align: center; }
+.general-info-title { justify-content: center; }
+.general-info-data { justify-content: center; }
