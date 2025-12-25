@@ -33,6 +33,15 @@
 <main id="main-container">
   <section class="table-section">
     <div class="section-title">🚛 Datos de Camiones (Báscula)</div>
+      <section id="bascula-filters" class="filters-bascula">
+        <label>Desde:
+          <input type="date" id="bascula-date-from">
+        </label>
+        <label>Hasta:
+          <input type="date" id="bascula-date-to">
+        </label>
+        <button id="bascula-clear" type="button" class="btn-clear">Limpiar</button>
+      </section>
     <div id="camiones-cards" class="cards-container">
       <div class="loading">Cargando datos de camiones...</div>
     </div>
