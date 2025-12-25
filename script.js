@@ -1,5 +1,5 @@
 // === CONFIGURACIÓN GENERAL ===
-const sheetUrlCamiones = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPW7ORSBCNqyu9AVjwWvCl_abfuud3m1COUTdEAUE4Rvoetf0E8m9jK9WX_OKzaA/pub?output=csv";
+const basculaJsonUrl   = "https://raw.githubusercontent.com/olamMat/TemperaturasRepo/refs/heads/main/JSONBascula.json";
 const sheetUrlGeneral  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTmkOu3MtRM8A5lWnbZiSsmml38oQfDH7lymtUq2Mxao2EIgGkkAso9O6JnI0Ys1g/pub?output=csv";
 const sheetUrlFechas   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTkjuaFRpult81iqXUoM_0s0aO_Hx2NXI-Vt3b7NjydPhDjWpNt1xl_SuHxZ_8y7Q/pub?output=csv";
 
@@ -10,6 +10,8 @@ const generalUpdateElement = document.getElementById("general-update");
 
 let generalData = [];
 let fechaData = [];
+let basculaRawRows = [];
+let basculaFilteredRows = [];
 let updateInterval;
 
 // === CONFIGURACIÓN DE ALERTA ===
@@ -100,8 +102,10 @@ async function performUpdate() {
 }
 
 async function updateCamionesData() {
-  const data = await loadCSV(sheetUrlCamiones, camionesContainer);
-  renderCamionesData(data);
+  // Bascula ahora viene de JSON (no CSV). Patio se mantiene igual.
+  basculaRawRows = await loadBasculaJSON(basculaJsonUrl, camionesContainer);
+  setupBasculaDateUIOnce();
+  applyBasculaFiltersAndRender();
 }
 
 async function updateGeneralData() {
@@ -143,106 +147,235 @@ function parseCSV(text) {
 }
 
 // === RENDERIZADO ===
-function renderCamionesData(data) {
-    camionesContainer.innerHTML = "";
-    if (!data.length) {
-        camionesContainer.innerHTML = '<div class="error">No hay datos disponibles.</div>';
-        return;
-    }
 
-    // Agrupación principal
-    const grupos = { Arabigo: [], Robusta: [] };
-    data.forEach(x => {
-        const g = (x.GrupoProcedencia || "").trim();
-        if (grupos[g]) grupos[g].push(x);
+// === BÁSCULA (JSON) ===
+function parseDotNetDate(dotNetStr) {
+  // Formato: "/Date(1766642400000)/"
+  if (!dotNetStr) return null;
+  const m = String(dotNetStr).match(/Date\((\d+)\)/);
+  if (!m) return null;
+  const ms = Number(m[1]);
+  if (!Number.isFinite(ms)) return null;
+  const d = new Date(ms);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function toISODateLocal(d) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function isRobustaRow(row) {
+  const cliente = (row?.["CLIENTE O AGENCIA"] || "").trim().toLowerCase();
+  const ubicacion = (row?.["Ubicacion"] || "").toString().trim().toLowerCase();
+
+  // Robusta si cumple cualquiera:
+  // 1) Cliente = Nueva Guinea o El Rama
+  // 2) Ubicacion = Patio Waswali
+  return (
+    cliente === "nueva guinea" ||
+    cliente === "el rama" ||
+    ubicacion === "patio waswali"
+  );
+}
+
+
+async function loadBasculaJSON(url, container) {
+  try {
+    const resp = await fetch(`${url}?t=${Date.now()}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const json = await resp.json();
+    const rows = Array.isArray(json?.rows) ? json.rows : [];
+    if (!rows.length && container) {
+      container.innerHTML = '<div class="error">No hay datos de báscula disponibles.</div>';
+    }
+    return rows;
+  } catch (err) {
+    console.error("❌ Error cargando JSON de báscula:", err);
+    if (container) container.innerHTML = `<div class="error">Error cargando báscula: ${err.message}</div>`;
+    return [];
+  }
+}
+
+function applyBasculaFiltersAndRender() {
+  const fromEl = document.getElementById("bascula-date-from");
+  const toEl   = document.getElementById("bascula-date-to");
+
+  const from = fromEl?.value ? new Date(fromEl.value + "T00:00:00") : null;
+  const to   = toEl?.value   ? new Date(toEl.value   + "T23:59:59") : null;
+
+  basculaFilteredRows = (basculaRawRows || []).filter(r => {
+    const d = parseDotNetDate(r["Fecha"]);
+    if (!d) return false;
+    if (from && d < from) return false;
+    if (to && d > to) return false;
+    return true;
+  });
+
+  renderBasculaFromRows(basculaFilteredRows);
+}
+
+function setupBasculaDateUIOnce() {
+  const fromEl = document.getElementById("bascula-date-from");
+  const toEl   = document.getElementById("bascula-date-to");
+  const clearEl= document.getElementById("bascula-clear");
+
+  if (!fromEl || !toEl) return;
+
+  // Inicializa min/max y valor sugerido (solo una vez)
+  if (!fromEl.dataset.init && basculaRawRows?.length) {
+    const dates = basculaRawRows
+      .map(r => parseDotNetDate(r["Fecha"]))
+      .filter(Boolean)
+      .sort((a,b) => a-b);
+
+    if (dates.length) {
+      const minISO = toISODateLocal(dates[0]);
+      const maxISO = toISODateLocal(dates[dates.length - 1]);
+
+      fromEl.min = minISO; fromEl.max = maxISO;
+      toEl.min   = minISO; toEl.max   = maxISO;
+
+      // Por defecto: "Hasta" = último día disponible
+      if (!toEl.value) toEl.value = maxISO;
+    }
+    fromEl.dataset.init = "1";
+  }
+
+  if (!fromEl.dataset.bound) {
+    fromEl.addEventListener("change", applyBasculaFiltersAndRender);
+    fromEl.dataset.bound = "1";
+  }
+  if (!toEl.dataset.bound) {
+    toEl.addEventListener("change", applyBasculaFiltersAndRender);
+    toEl.dataset.bound = "1";
+  }
+  if (clearEl && !clearEl.dataset.bound) {
+    clearEl.addEventListener("click", () => {
+      fromEl.value = "";
+      toEl.value = "";
+      applyBasculaFiltersAndRender();
+    });
+    clearEl.dataset.bound = "1";
+  }
+}
+
+function renderBasculaFromRows(rows) {
+  camionesContainer.innerHTML = "";
+  if (!rows || !rows.length) {
+    camionesContainer.innerHTML = '<div class="error">No hay datos disponibles para el rango seleccionado.</div>';
+    return;
+  }
+
+  // Totales (Camiones = número de registros)
+  function acum(items) {
+    let cam = 0, sac = 0, qq = 0;
+    items.forEach(r => {
+      cam += 1;
+      sac += Number(r["SACOS"] || 0);
+      qq  += Number(r["QQS NETOS"] || 0);
+    });
+    const kg = qq * 46;
+    return { cam, sac, qq, kg };
+  }
+
+  const totalGeneral = acum(rows);
+
+  // Barra Total General
+  const barra = document.createElement("div");
+  barra.classList.add("general-info-bar");
+  barra.innerHTML = `
+    <div class="general-info-title">📦 Total General</div>
+    <div class="general-info-data">
+      <div class="general-pill">Camiones: ${totalGeneral.cam}</div>
+      <div class="general-pill">Kilos: ${totalGeneral.kg.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+      <div class="general-pill">QQs: ${totalGeneral.qq.toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
+      <div class="general-pill">Sacos: ${totalGeneral.sac.toLocaleString()}</div>
+    </div>
+  `;
+  camionesContainer.appendChild(barra);
+
+  // Clasificación Robusta/Arabigo
+  const arabigo = [];
+  const robusta = [];
+
+  rows.forEach(r => {
+  if (isRobustaRow(r)) robusta.push(r);
+  else arabigo.push(r);
+});
+
+
+  // Agrupar Arabigo por Ubicacion
+  const arabigoByUb = {};
+  arabigo.forEach(r => {
+    const ub = (r["Ubicacion"] || "Sin Ubicación").toString().trim() || "Sin Ubicación";
+    if (!arabigoByUb[ub]) arabigoByUb[ub] = [];
+    arabigoByUb[ub].push(r);
+  });
+
+  function agruparPorStatus(items) {
+    const m = {};
+    items.forEach(r => {
+      const st = (r["Status"] || "Sin Status").toString().trim() || "Sin Status";
+      if (!m[st]) m[st] = [];
+      m[st].push(r);
+    });
+    return m;
+  }
+
+  function crearSeccionLikePatio(titulo, items, color) {
+    const section = document.createElement("div");
+    section.classList.add("patio-section");
+    section.innerHTML = `<div class="patio-title" style="color:${color}">${titulo}</div>`;
+
+    const cards = document.createElement("div");
+    cards.classList.add("cards-container");
+
+    const grouped = agruparPorStatus(items);
+    Object.keys(grouped).forEach(st => {
+      const sum = acum(grouped[st]);
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.innerHTML = `
+        <div class="proceso-label">${st}</div>
+        <p><span>Camiones:</span> ${sum.cam}</p>
+        <p><span>Kilos:</span> ${sum.kg.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
+        <p><span>QQs:</span> ${sum.qq.toLocaleString(undefined, {maximumFractionDigits: 2})}</p>
+        <p><span>Sacos:</span> ${sum.sac.toLocaleString()}</p>
+      `;
+      cards.appendChild(card);
     });
 
-    // Función que resume
-    function resumir(items) {
-        let cam = 0, kg = 0, qq = 0, sac = 0;
-        items.forEach(r => {
-            cam += Number(r.Camiones || 0);
-            kg += Number(r.Kilos || 0);
-            qq += Number(r.QQs || 0);
-            sac += Number(r.Sacos || 0);
-        });
-        return { cam, kg, qq, sac };
-    }
+    section.appendChild(cards);
+    camionesContainer.appendChild(section);
+  }
 
-    const totalGeneral = resumir(data);
+  // Arabigo (por Ubicación)
+Object.keys(arabigoByUb)
+  .sort((a, b) => {
+    const A = (a || "").toLowerCase();
+    const B = (b || "").toLowerCase();
+    const sin = "sin ubicación";
 
-    // === 1) BARRA DE TOTAL GENERAL ===
-    const barra = document.createElement("div");
-    barra.classList.add("general-info-bar");
+    if (A === sin && B !== sin) return -1;
+    if (B === sin && A !== sin) return 1;
+    return a.localeCompare(b, "es");
+  })
+  .forEach(ub => {
+    crearSeccionLikePatio(`Arabigo — ${ub}`, arabigoByUb[ub], "#005ace");
+  });
 
-    barra.innerHTML = `
-        <div class="general-info-title">📦 Total General</div>
-        <div class="general-info-data">
-            <div class="general-pill">Camiones: ${totalGeneral.cam}</div>
-            <div class="general-pill">Kilos: ${totalGeneral.kg.toLocaleString()}</div>
-            <div class="general-pill">QQs: ${totalGeneral.qq.toLocaleString()}</div>
-            <div class="general-pill">Sacos: ${totalGeneral.sac}</div>
-        </div>
-    `;
-    camionesContainer.appendChild(barra);
+  // Robusta (una sola sección)
+  if (robusta.length) {
+    crearSeccionLikePatio("Robusta", robusta, "#1f8f2e");
+  }
+}
 
-    // === Agrupar por status tipo Patio ===
-    function agruparPorStatus(items) {
-        const m = {};
-        items.forEach(x => {
-            const st = x.Status || "Sin Status";
-            if (!m[st]) m[st] = [];
-            m[st].push(x);
-        });
-        return m;
-    }
-
-    // === 2) CREAR SECCIÓN IGUAL A PATIO ===
-    function crearSeccion(nombre, items, color) {
-        const section = document.createElement("div");
-        section.classList.add("patio-section");
-
-        section.innerHTML = `
-            <div class="patio-title" style="color:${color}">
-                ${nombre}
-            </div>
-        `;
-
-        const cards = document.createElement("div");
-        cards.classList.add("cards-container");
-
-        const agrupado = agruparPorStatus(items);
-
-        Object.keys(agrupado).forEach(st => {
-            let cam = 0, kg = 0, qq = 0, sac = 0;
-
-            agrupado[st].forEach(r => {
-                cam += Number(r.Camiones || 0);
-                kg += Number(r.Kilos || 0);
-                qq += Number(r.QQs || 0);
-                sac += Number(r.Sacos || 0);
-            });
-
-            const card = document.createElement("div");
-            card.classList.add("card");
-
-            card.innerHTML = `
-                <div class="proceso-label">${st}</div>
-                <p><span>Camiones:</span> ${cam}</p>
-                <p><span>Kilos:</span> ${kg.toLocaleString()}</p>
-                <p><span>QQs:</span> ${qq.toLocaleString()}</p>
-                <p><span>Sacos:</span> ${sac}</p>
-            `;
-            cards.appendChild(card);
-        });
-
-        section.appendChild(cards);
-        camionesContainer.appendChild(section);
-    }
-
-    // === 3) Secciones tipo patio ===
-    crearSeccion("Arabigo", grupos.Arabigo, "#005ace");
-    crearSeccion("Robusta", grupos.Robusta, "#1f8f2e");
+// Mantengo esta función por compatibilidad, pero ahora la data llega por JSON
+function renderCamionesData(data) {
+  renderBasculaFromRows(data);
 }
 
 
