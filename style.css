@@ -418,3 +418,45 @@ header {
 .general-info-bar { text-align: center; }
 .general-info-title { justify-content: center; }
 .general-info-data { justify-content: center; }
+
+
+/* ===========================
+   FILTRO DE FECHA - BÁSCULA
+=========================== */
+.filters-bascula{
+  display:flex;
+  gap:.6rem;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  margin: .8rem 0 1rem 0;
+  padding: .65rem .75rem;
+  background:#fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.filters-bascula label{
+  color:#860062;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+}
+.filters-bascula input[type="date"]{
+  padding: .3rem .45rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: inherit;
+}
+.filters-bascula .btn-clear{
+  padding: .35rem .7rem;
+  border-radius: 10px;
+  border: 1px solid rgba(134,0,98,.35);
+  background: #fff;
+  color: #860062;
+  font-weight: 800;
+  cursor:pointer;
+}
+.filters-bascula .btn-clear:hover{
+  background:#ffe3f5;
+}
