@@ -21,9 +21,15 @@
     </div>
 
     <div id="menu-panel">
-      <a href="https://drive.google.com/drive/folders/103qxST75KLI1VhUVxwUnebZSQY_HzNXy?usp=sharing"><i class="fa-solid fa-database"></i> Secado Natural</a>
-      <a href="https://drive.google.com/drive/folders/1-97d3bAzF4NCS6tCsu39oP2jgRmsYEoT?usp=sharing"><i class="fa-solid fa-mug-hot"></i> Catación</a>
-      <a href="https://drive.google.com/drive/folders/1xnEqmtlqhFD4eBk8FiqV5VPo1A2Yryp-?usp=sharing"><i class="fa-solid fa-warehouse"></i> Almacén</a>
+      <a href="https://drive.google.com/drive/folders/103qxST75KLI1VhUVxwUnebZSQY_HzNXy?usp=sharing">
+        <i class="fa-solid fa-database"></i> Secado Natural
+      </a>
+      <a href="https://drive.google.com/drive/folders/1-97d3bAzF4NCS6tCsu39oP2jgRmsYEoT?usp=sharing">
+        <i class="fa-solid fa-mug-hot"></i> Catación
+      </a>
+      <a href="https://drive.google.com/drive/folders/1xnEqmtlqhFD4eBk8FiqV5VPo1A2Yryp-?usp=sharing">
+        <i class="fa-solid fa-warehouse"></i> Almacén
+      </a>
     </div>
   </div>
 </header>
@@ -31,25 +37,50 @@
 <div id="menu-mask"></div>
 
 <main id="main-container">
+
+  <!-- ========================= -->
+  <!-- BÁSCULA -->
+  <!-- ========================= -->
   <section class="table-section">
     <div class="section-title">🚛 Datos de Camiones (Báscula)</div>
-      <section id="bascula-filters" class="filters-bascula">
-        <label>Desde:
-          <input type="date" id="bascula-date-from">
-        </label>
-        <label>Hasta:
-          <input type="date" id="bascula-date-to">
-        </label>
-        <button id="bascula-clear" type="button" class="btn-clear">Limpiar</button>
-      </section>
+
+    <!-- Filtro por fecha -->
+    <section id="bascula-filters" class="filters-bascula">
+      <label>Desde:
+        <input type="date" id="bascula-date-from">
+      </label>
+      <label>Hasta:
+        <input type="date" id="bascula-date-to">
+      </label>
+      <button id="bascula-clear" type="button" class="btn-clear">Limpiar</button>
+    </section>
+
+    <!-- CONTENEDOR BÁSCULA -->
     <div id="camiones-cards" class="cards-container">
       <div class="loading">Cargando datos de camiones...</div>
     </div>
+
+    <!-- ⬇️ NUEVA SECCIÓN: RESUMEN DE COMPRAS -->
+    <div id="resumen-compras" class="compras-summary">
+      <div class="compras-title">
+        📊 Resumen de café en patio
+      </div>
+
+      <div class="compras-grid">
+        <!-- Se llenan dinámicamente desde JS -->
+        <div class="loading">Calculando resumen de lotes...</div>
+      </div>
+    </div>
+
     <div id="camiones-update" class="last-update"></div>
   </section>
 
+  <!-- ========================= -->
+  <!-- SECADO NATURAL -->
+  <!-- ========================= -->
   <section class="table-section">
     <div class="section-title">📊 Datos de Secado Natural</div>
+
     <section id="filters">
       <label>Proceso:
         <select id="filter-proceso">
@@ -68,8 +99,10 @@
         <div class="loading">Cargando datos...</div>
       </div>
     </div>
+
     <div id="general-update" class="last-update"></div>
   </section>
+
 </main>
 
 <script src="script.js"></script>
