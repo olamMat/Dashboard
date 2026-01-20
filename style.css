@@ -460,3 +460,97 @@ header {
 .filters-bascula .btn-clear:hover{
   background:#ffe3f5;
 }
+/* ===========================
+   RESUMEN DE COMPRAS (ACTIVO)
+=========================== */
+
+.compras-summary {
+  margin-top: 1.5rem;
+  padding: 1.2rem 1.4rem;
+  background: linear-gradient(135deg, #fdf2f8, #ffffff);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.compras-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #860062;
+  text-align: center;
+  margin-bottom: 1rem;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Grid de tarjetas */
+.compras-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
+/* Tarjeta individual */
+.compra-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  border-left: 6px solid #860062;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.compra-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 22px rgba(134,0,98,0.25);
+}
+
+/* Título de la tarjeta */
+.compra-label {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 0.6rem;
+  color: #111;
+}
+
+/* Valores */
+.compra-values {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.compra-values span {
+  font-weight: 700;
+  color: #000;
+}
+
+/* Variantes por tipo */
+.compra-tolling {
+  border-left-color: #0d6efd;
+}
+.compra-primera {
+  border-left-color: #198754;
+}
+.compra-segunda {
+  border-left-color: #fd7e14;
+}
+.compra-broza {
+  border-left-color: #6c757d;
+}
+.compra-fruto {
+  border-left-color: #dc3545;
+}
+
+/* Responsive fino */
+@media (max-width: 768px) {
+  .compras-summary {
+    padding: 1rem;
+  }
+  .compras-title {
+    font-size: 1.15rem;
+  }
+}
