@@ -511,4 +511,106 @@ mask.addEventListener("click", () => {
     panel.style.display = "none";
 });
 
+// ===============================
+// RESUMEN DE COMPRAS (ACTIVO)
+// ===============================
+
+const ticketJsonUrl =
+  "https://raw.githubusercontent.com/olamMat/TemperaturasRepo/refs/heads/main/JSONTicket.json";
+
+async function loadTicketJSON() {
+  try {
+    const resp = await fetch(`${ticketJsonUrl}?t=${Date.now()}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const json = await resp.json();
+    return Array.isArray(json?.rows) ? json.rows : [];
+  } catch (err) {
+    console.error("❌ Error cargando JSONTicket:", err);
+    return [];
+  }
+}
+
+// Replica SUMAR.SI.CONJUNTO
+function calcularResumenCompras(rows) {
+  const resumen = {
+    tolling: 0,
+    primera: 0,
+    segunda: 0,
+    broza: 0,
+    fruto: 0
+  };
+
+  rows.forEach(r => {
+    const estado = (r["Estado"] || "").toString().toUpperCase();
+    if (estado !== "ACTIVO") return;
+
+    const tipoCompra = (r["Tipo de Compra"] || "").toString().trim().toLowerCase();
+    const calidad = (r["Calidad Recibido"] || "").toString().trim().toLowerCase();
+    const peso = Number(r["Peso"] || 0);
+
+    // Tolling
+    if (tipoCompra === "tolling") {
+      resumen.tolling += peso;
+      return;
+    }
+
+    // No Tolling
+    if (tipoCompra === "tolling") return;
+
+    if (calidad.startsWith("primera")) resumen.primera += peso;
+    else if (calidad.startsWith("segunda")) resumen.segunda += peso;
+    else if (calidad.startsWith("broza")) resumen.broza += peso;
+    else if (calidad.startsWith("fruto")) resumen.fruto += peso;
+  });
+
+  return resumen;
+}
+
+
+function renderResumenCompras(resumen) {
+  const container = document.querySelector(".compras-grid");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const items = [
+    { key: "tolling", label: "Tolling", class: "compra-tolling" },
+    { key: "primera", label: "Primera", class: "compra-primera" },
+    { key: "segunda", label: "Segunda", class: "compra-segunda" },
+    { key: "broza", label: "Broza", class: "compra-broza" },
+    { key: "fruto", label: "Fruto", class: "compra-fruto" }
+  ];
+
+  items.forEach(item => {
+    const kilos = resumen[item.key] || 0;
+    const qqs = kilos / 46;
+
+    const card = document.createElement("div");
+    card.className = `compra-card ${item.class}`;
+    card.innerHTML = `
+      <div class="compra-label">${item.label}</div>
+      <div class="compra-values">
+        <div><span>Kilos:</span> ${kilos.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+        <div><span>QQs:</span> ${qqs.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Inicialización del resumen
+async function initResumenCompras() {
+  const rows = await loadTicketJSON();
+  const resumen = calcularResumenCompras(rows);
+  renderResumenCompras(resumen);
+}
+
+// Hook al inicio del dashboard
+const _initOriginal = initializeApp;
+initializeApp = async function () {
+  await _initOriginal();
+  await initResumenCompras();
+};
+
+
 initializeApp();
