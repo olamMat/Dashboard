@@ -516,7 +516,8 @@ mask.addEventListener("click", () => {
 // ===============================
 
 const ticketJsonUrl =
-  "https://raw.githubusercontent.com/olamMat/TemperaturasRepo/refs/heads/main/JSONTicket.json";
+  "https://raw.githubusercontent.com/olamMat/TemperaturasRepo/refs/heads/main/MostrarLotesExcel.json";
+
 
 async function loadTicketJSON() {
   try {
@@ -540,22 +541,40 @@ function calcularResumenCompras(rows) {
     fruto: 0
   };
 
+  const ticketsUsados = new Set();
+
   rows.forEach(r => {
-    const estado = (r["Estado"] || "").toString().toUpperCase();
+    const ticket = (r["Ticket"] || "").toString().trim();
+    if (!ticket) return;
+
+    // 🔒 Evitar duplicar tickets
+    if (ticketsUsados.has(ticket)) return;
+
+    const estado = (r["Estado"] || "").toString().trim().toUpperCase();
     if (estado !== "ACTIVO") return;
 
-    const tipoCompra = (r["Tipo de Compra"] || "").toString().trim().toLowerCase();
-    const calidad = (r["Calidad Recibido"] || "").toString().trim().toLowerCase();
+    const tipoCompra = (r["Tipo Compra"] || "").toString().trim().toLowerCase();
+    const calidad = (r["Calidad"] || "").toString().trim().toLowerCase();
+    const area = (r["Área de Secado"] || "").toString().trim().toLowerCase();
     const peso = Number(r["Peso"] || 0);
 
-    // Tolling
+    if (peso <= 0) return;
+
+    // Marcamos ticket como procesado
+    ticketsUsados.add(ticket);
+
+    // ======================
+    // TOLLING
+    // ======================
     if (tipoCompra === "tolling") {
       resumen.tolling += peso;
       return;
     }
 
-    // No Tolling
-    if (tipoCompra === "tolling") return;
+    // ======================
+    // NO TOLLING → SOLO CONTROL PATIO
+    // ======================
+    if (area !== "control patio") return;
 
     if (calidad.startsWith("primera")) resumen.primera += peso;
     else if (calidad.startsWith("segunda")) resumen.segunda += peso;
@@ -565,6 +584,7 @@ function calcularResumenCompras(rows) {
 
   return resumen;
 }
+
 
 
 function renderResumenCompras(resumen) {
@@ -614,3 +634,4 @@ initializeApp = async function () {
 
 
 initializeApp();
+
